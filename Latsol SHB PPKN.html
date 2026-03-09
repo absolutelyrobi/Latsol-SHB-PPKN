@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulasi SHB PPKN</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in-up': 'fadeInUp 0.5s ease-out',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+
+  <!-- ================= SCREEN: START ================= -->
+  <div id="screen-start" class="min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="max-w-3xl w-full bg-slate-800 p-8 md:p-12 rounded-2xl shadow-2xl text-center border border-slate-700 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-white to-red-500"></div>
+      
+      <div class="mb-6 flex justify-center">
+         <svg class="w-20 h-20 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+      </div>
+      
+      <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight text-white">
+        Simulasi Latihan PPKN
+      </h1>
+      <h2 class="text-lg md:text-xl text-slate-300 font-semibold mb-6">
+        Materi: Kebinekaan, Multikulturalisme & Gotong Royong
+      </h2>
+      
+      <div class="bg-slate-700/50 rounded-xl p-6 mb-8 text-left max-w-xl mx-auto border border-slate-600">
+        <h3 class="font-bold text-white mb-3">📋 Instruksi Latihan:</h3>
+        <ul class="list-disc pl-5 space-y-2 text-slate-300">
+          <li>Terdiri dari <strong>40 Soal Pilihan Ganda</strong>.</li>
+          <li>Terdapat pembahasan otomatis setelah menjawab setiap soal.</li>
+          <li>Pilih jawaban yang paling tepat dari pilihan A hingga E.</li>
+          <li>Di akhir sesi, kamu akan melihat persentase skor akhirmu.</li>
+        </ul>
+      </div>
+
+      <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg shadow-red-500/30 transition transform hover:-translate-y-1">
+        Mulai Latihan Sekarang
+      </button>
+      
+      <p class="mt-8 text-xs text-slate-500">
+        Sumber: Latihan Soal SHB PPKN
+      </p>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN: QUIZ ================= -->
+  <div id="screen-quiz" class="hidden min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Header & Progress -->
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <span id="quiz-category" class="text-xs font-bold uppercase tracking-wider text-red-400 bg-red-900/30 px-3 py-1 rounded-full">
+            Kategori
+          </span>
+        </div>
+        <div id="quiz-progress-text" class="text-sm font-semibold text-slate-400">
+          Soal 1 / 40
+        </div>
+      </div>
+      <div class="w-full bg-slate-800 rounded-full h-2 mb-8 overflow-hidden">
+        <div id="quiz-progress-bar" class="bg-gradient-to-r from-red-500 to-rose-500 h-2 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+      </div>
+
+      <!-- Main Card -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl overflow-hidden mb-6">
+        
+        <!-- Stimulus Box (Hidden if empty) -->
+        <div id="stimulus-container" class="bg-slate-700/30 p-5 md:p-8 border-b border-slate-700 text-slate-300 hidden">
+          <div class="flex gap-3 mb-3 items-center">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <h3 class="font-semibold text-white">Teks/Data</h3>
+          </div>
+          <p id="quiz-stimulus" class="whitespace-pre-wrap leading-relaxed text-sm md:text-base"></p>
+        </div>
+
+        <!-- Question Box -->
+        <div class="p-5 md:p-8">
+          <h2 id="quiz-question" class="text-lg md:text-xl font-semibold mb-6 leading-relaxed text-white">
+            Pertanyaan
+          </h2>
+
+          <!-- Options -->
+          <div id="quiz-options" class="space-y-3">
+            <!-- Options will be injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback & Next Button -->
+      <div id="quiz-feedback-container" class="hidden animate-fade-in-up">
+        <div id="quiz-feedback-box" class="p-6 rounded-2xl border mb-6">
+          <div class="flex items-center gap-3 mb-2">
+            <div id="quiz-feedback-icon"></div>
+            <h3 id="quiz-feedback-title" class="font-bold text-lg"></h3>
+          </div>
+          <div class="pl-10">
+            <p id="quiz-feedback-text" class="opacity-90 leading-relaxed text-sm md:text-base"></p>
+          </div>
+        </div>
+
+        <div class="flex justify-end pb-12">
+          <button onclick="handleNextQuestion()" id="quiz-next-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-8 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 transition">
+            Soal Berikutnya
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SCREEN: RESULT ================= -->
+  <div id="screen-result" class="hidden min-h-screen flex flex-col items-center justify-center p-6">
+    <div class="max-w-2xl w-full bg-slate-800 p-8 md:p-12 rounded-3xl shadow-2xl text-center border border-slate-700">
+      
+      <h2 class="text-3xl font-bold mb-8 text-white">Latihan Selesai! 🎉</h2>
+      
+      <div class="relative w-48 h-48 mx-auto mb-8">
+        <svg class="w-full h-full" viewBox="0 0 36 36">
+          <path class="text-slate-700" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path id="result-circle" class="text-red-500" stroke-dasharray="0, 100" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span id="result-score" class="text-5xl font-black text-white">0</span>
+          <span class="text-sm text-slate-400 mt-1">Skor Akhir</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-700/30 rounded-xl p-6 mb-8 border border-slate-600">
+        <p class="text-lg">
+          Kamu menjawab benar <strong id="result-correct" class="text-emerald-400 text-xl">0</strong> dari <strong id="result-total" class="text-blue-400 text-xl">40</strong> soal.
+        </p>
+        <p id="result-message" class="mt-3 text-slate-400 italic">
+          Message
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="startQuiz()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-full transition">
+          Ulangi Latihan 🔄
+        </button>
+        <button onclick="goHome()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-full transition">
+          Beranda Utama
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- DATA SOAL PPKN (40 SOAL) ---
+    const questionsData = [
+      {
+        id: 1,
+        category: "PPKN",
+        stimulus: "",
+        question: "Pemerintah Provinsi DKI Jakarta sering mengadakan festival budaya yang tidak hanya menampilkan kebudayaan Betawi, tetapi juga memfasilitasi pertunjukan seni dari berbagai suku hingga barongsai. Kebijakan ini merupakan bentuk pengakuan agar semua identitas dapat hidup berdampingan. Dalam kajian sosiologi kebangsaan, pendekatan ini disebut...",
+        options: [
+          { key: "A", text: "Kebijakan pluralisme yang memaksa percampuran nilai menjadi kebudayaan baru" },
+          { key: "B", text: "Interaksional simbolis yang berupaya meredam konflik melalui unjuk kekuatan budaya" },
+          { key: "C", text: "Praktik multikulturalisme, di mana keberagaman dilindungi dan difasilitasi secara setara" },
+          { key: "D", text: "Heterogenitas budaya murni yang terjadi secara alamiah tanpa campur tangan otoritas" },
+          { key: "E", text: "Peleburan asimilasi secara struktural untuk menghapus identitas asal pendatang" }
+        ],
+        correct: "C",
+        explanation: "Praktik multikulturalisme: perlindungan & fasilitas setara bagi keragaman identitas."
+      },
+      {
+        id: 2,
+        category: "PPKN",
+        stimulus: "",
+        question: "Di Bali, terdapat tradisi di mana pecalang membantu pengamanan salat Idul Fitri, dan warga Muslim (Banser) membantu pengamanan Nyepi. Sikap saling menghargai dan menoleransi perbedaan ini merupakan wujud nyata dari konsep...",
+        options: [
+          { key: "A", text: "Pluralisme" },
+          { key: "B", text: "Asimilasi budaya timbal balik" },
+          { key: "C", text: "Paternalisme sosial" },
+          { key: "D", text: "Akulturasi keagamaan" },
+          { key: "E", text: "Sinkretisme teologis" }
+        ],
+        correct: "A",
+        explanation: "Pluralisme: sikap menghargai, mengakui, dan menoleransi adanya perbedaan."
+      },
+      {
+        id: 3,
+        category: "PPKN",
+        stimulus: "",
+        question: "Data BPS menunjukkan fakta objektif bahwa dalam satu wilayah perkotaan terdapat belasan suku dan penganut 6 agama tanpa memberikan penilaian baik atau buruk. Data statistik ini merujuk pada konsep...",
+        options: [
+          { key: "A", text: "Integrasi fungsional dalam demografi" },
+          { key: "B", text: "Diferensiasi tingkatan kelas sosial" },
+          { key: "C", text: "Ketimpangan kultural wilayah urban" },
+          { key: "D", text: "Dinamika multikulturalisme proaktif" },
+          { key: "E", text: "Heterogenitas budaya" }
+        ],
+        correct: "E",
+        explanation: "Heterogenitas budaya: data objektif masyarakat tanpa penilaian baik/buruk."
+      },
+      {
+        id: 4,
+        category: "PPKN",
+        stimulus: "",
+        question: "Bukti historis tertua mengenai praktik toleransi beragama yang difasilitasi oleh negara di Nusantara terlihat pada masa pemerintahan...",
+        options: [
+          { key: "A", text: "Sultan Iskandar Muda (Aceh)" },
+          { key: "B", text: "Raden Patah (Demak)" },
+          { key: "C", text: "Balaputradewa (Sriwijaya)" },
+          { key: "D", text: "Raja Hayam Wuruk (Majapahit)" },
+          { key: "E", text: "Ken Arok (Tumapel)" }
+        ],
+        correct: "D",
+        explanation: "Era Majapahit (Hayam Wuruk) dikenal dengan toleransi agama yang sangat maju."
+      },
+      {
+        id: 5,
+        category: "PPKN",
+        stimulus: "",
+        question: "Semboyan \"Bhinneka Tunggal Ika\" dalam Kitab Sutasoma pada abad ke-14 dirumuskan oleh Mpu Tantular dengan tujuan utama untuk...",
+        options: [
+          { key: "A", text: "Mencegah asimilasi budaya antara pendatang Tiongkok dengan penduduk asli" },
+          { key: "B", text: "Mendamaikan perbedaan teologis antara umat Hindu dan Buddha" },
+          { key: "C", text: "Menyatukan raja-raja kecil untuk tunduk di bawah kekuasaan absolut" },
+          { key: "D", text: "Menyusun sistem hukum tata negara yang menggabungkan hukum adat dan agama" },
+          { key: "E", text: "Merespons masuknya pengaruh pedagang Arab dan Eropa di wilayah pesisir" }
+        ],
+        correct: "B",
+        explanation: "Mendamaikan perbedaan teologis antara Hindu (Siwa) dan Buddha (Jina) di era Majapahit."
+      },
+      {
+        id: 6,
+        category: "PPKN",
+        stimulus: "",
+        question: "Bukti sejarah mengenai kejayaan dan masyarakat Majapahit yang majemuk dicatat oleh Mpu Prapanca dalam...",
+        options: [
+          { key: "A", text: "Kitab Pararaton" },
+          { key: "B", text: "Kitab Arjuna Wiwaha" },
+          { key: "C", text: "Prasasti Kedukan Bukit" },
+          { key: "D", text: "Kitab Negarakertagama" },
+          { key: "E", text: "Kitab Bharatayuddha" }
+        ],
+        correct: "D",
+        explanation: "Kitab Negarakertagama mencatat tata pemerintahan dan masyarakat majemuk Majapahit."
+      },
+      {
+        id: 7,
+        category: "PPKN",
+        stimulus: "",
+        question: "Mengapa kondisi masyarakat yang heterogen dan plural belum cukup menjamin tidak terjadinya konflik, sehingga negara perlu mengadopsi prinsip multikulturalisme?",
+        options: [
+          { key: "A", text: "Karena pluralisme selalu diikuti oleh sentimen chauvinisme yang merendahkan budaya lain" },
+          { key: "B", text: "Sebab heterogenitas secara alamiah akan berujung pada peleburan identitas tunggal" },
+          { key: "C", text: "Pluralisme hanya sebatas sikap individu, sedangkan multikulturalisme berupa kebijakan negara yang melindungi kesetaraan" },
+          { key: "D", text: "Multikulturalisme mengizinkan kelompok minoritas membentuk negara otonom sendiri" },
+          { key: "E", text: "Tidak ada perbedaan esensial antara pluralisme dan multikulturalisme" }
+        ],
+        correct: "C",
+        explanation: "Multikulturalisme melibatkan kebijakan negara untuk melindungi kesetaraan, bukan sekadar sikap individu."
+      },
+      {
+        id: 8,
+        category: "PPKN",
+        stimulus: "",
+        question: "Pendekatan Mpu Tantular yang menyatukan unsur Siwa dan Buddha di masa lalu memberikan pelajaran berharga bagi masa kini, yaitu...",
+        options: [
+          { key: "A", text: "Perbedaan teologis tidak harus menghalangi terbentuknya harmoni sosial demi bangsa" },
+          { key: "B", text: "Semua ajaran agama pada dasarnya sama, sehingga perbedaan harus dihapuskan" },
+          { key: "C", text: "Pemerintah harus menetapkan satu keyakinan resmi yang menggabungkan semua agama" },
+          { key: "D", text: "Kerukunan hanya dapat terwujud jika masyarakat meninggalkan nilai-nilai religius" },
+          { key: "E", text: "Konflik antarumat beragama adalah siklus alamiah yang tidak dapat diselesaikan regulasi" }
+        ],
+        correct: "A",
+        explanation: "Perbedaan teologis tidak menghalangi harmoni sosial demi kelangsungan hidup berbangsa."
+      },
+      {
+        id: 9,
+        category: "PPKN",
+        stimulus: "",
+        question: "Fenomena berkembangnya ratusan bahasa daerah yang berbeda secara mandiri di Indonesia pada masa lampau paling kuat dipengaruhi oleh...",
+        options: [
+          { key: "A", text: "Politik devide et impera kolonial Eropa" },
+          { key: "B", text: "Posisi Indonesia sebagai Negara Kepulauan (Archipelago)" },
+          { key: "C", text: "Pembagian kelas sosial warisan kerajaan Hindu-Buddha" },
+          { key: "D", text: "Keseragaman ras nenek moyang yang menciptakan bahasa sandi" },
+          { key: "E", text: "Perkembangan teknologi pelayaran yang menyatukan persepsi" }
+        ],
+        correct: "B",
+        explanation: "Kondisi geografis kepulauan (Archipelago) menyebabkan perkembangan budaya mandiri di tiap pulau."
+      },
+      {
+        id: 10,
+        category: "PPKN",
+        stimulus: "",
+        question: "Keberagaman budaya Indonesia dipengaruhi posisi silang di jalur perdagangan. Realitas historis yang paling tepat menggambarkan kondisi ini adalah...",
+        options: [
+          { key: "A", text: "Masyarakat pesisir terisolasi dari perkembangan global" },
+          { key: "B", text: "Munculnya satu ras baru hasil percampuran paksa pribumi dan kolonial" },
+          { key: "C", text: "Persebaran ras Melanesoid yang merata dari Sumatera hingga Papua" },
+          { key: "D", text: "Menurunnya keberagaman karena pedagang asing menolak berinteraksi" },
+          { key: "E", text: "Pengaruh Eropa di wilayah timur dan tradisi Islam di wilayah barat/pesisir" }
+        ],
+        correct: "E",
+        explanation: "Jalur perdagangan mengundang pengaruh Eropa di timur dan Islam di barat/pesisir."
+      },
+      {
+        id: 11,
+        category: "PPKN",
+        stimulus: "",
+        question: "Masyarakat pesisir cenderung egaliter dan terbuka, sementara masyarakat pegunungan cenderung terikat tradisi dan hierarki. Perbedaan karakter ini disebabkan oleh...",
+        options: [
+          { key: "A", text: "Adaptasi interaksi sosial terhadap kondisi ekonomi yang dibentuk bentang alam" },
+          { key: "B", text: "Perbedaan ras genetis antara penduduk pesisir dan pegunungan" },
+          { key: "C", text: "Kebijakan kolonial yang memisahkan pendidikan warga pesisir dan gunung" },
+          { key: "D", text: "Terjadinya ketimpangan budaya (cultural lag) secara massal" },
+          { key: "E", text: "Tingkat kecerdasan warga pegunungan yang lebih mementingkan tata krama" }
+        ],
+        correct: "A",
+        explanation: "Adaptasi sosial terhadap kondisi ekonomi/profesi yang dibentuk oleh bentang alam (nelayan vs petani)."
+      },
+      {
+        id: 12,
+        category: "PPKN",
+        stimulus: "",
+        question: "Musik dangdut merupakan perpaduan unsur Melayu, India (tabla), dan Arab (vokal). Terbentuknya entitas budaya baru ini disebut...",
+        options: [
+          { key: "A", text: "Akulturasi" },
+          { key: "B", text: "Konflik kebudayaan" },
+          { key: "C", text: "Amalgamasi struktural" },
+          { key: "D", text: "Asimilasi" },
+          { key: "E", text: "Cultural Lag" }
+        ],
+        correct: "D",
+        explanation: "Asimilasi: peleburan berbagai unsur (Melayu, India, Arab) menghasilkan budaya baru (Dangdut)."
+      },
+      {
+        id: 13,
+        category: "PPKN",
+        stimulus: "",
+        question: "Menara Masjid Kudus yang memiliki arsitektur candi Hindu namun berfungsi sebagai tempat azan merupakan contoh dari...",
+        options: [
+          { key: "A", text: "Asimilasi" },
+          { key: "B", text: "Pluralisme fungsional" },
+          { key: "C", text: "Akulturasi" },
+          { key: "D", text: "Diferensiasi kultural" },
+          { key: "E", text: "Invasi kebudayaan" }
+        ],
+        correct: "C",
+        explanation: "Akulturasi: perpaduan budaya (Hindu & Islam) tanpa menghapus unsur asli (Candi & Masjid)."
+      },
+      {
+        id: 14,
+        category: "PPKN",
+        stimulus: "",
+        question: "Pandangan sosiologis yang menganggap perbedaan peran laki-laki dan perempuan di sawah sebagai fungsi yang saling melengkapi demi kelangsungan hidup disebut...",
+        options: [
+          { key: "A", text: "Teori Evolusi Sosial Linear" },
+          { key: "B", text: "Teori Struktural Fungsional" },
+          { key: "C", text: "Paradigma Interaksional Simbolis" },
+          { key: "D", text: "Teori Konflik Karl Marx" },
+          { key: "E", text: "Teori Pilihan Rasional" }
+        ],
+        correct: "B",
+        explanation: "Struktural Fungsional: memandang perbedaan peran sebagai fungsi vital yang saling melengkapi."
+      },
+      {
+        id: 15,
+        category: "PPKN",
+        stimulus: "",
+        question: "Perbedaan makna gestur (seperti mengacungkan jempol) yang menimbulkan kesalahpahaman antarkelompok budaya paling tepat dikaji menggunakan...",
+        options: [
+          { key: "A", text: "Konsep kesenjangan struktural" },
+          { key: "B", text: "Teori akulturasi regresif" },
+          { key: "C", text: "Pendekatan asimilasi pasif" },
+          { key: "D", text: "Analisis cultural lag" },
+          { key: "E", text: "Teori Interaksional Simbolis" }
+        ],
+        correct: "E",
+        explanation: "Interaksional Simbolis: menganalisis interaksi melalui pemaknaan terhadap simbol dan gestur."
+      },
+      {
+        id: 16,
+        category: "PPKN",
+        stimulus: "",
+        question: "Kondisi ketertinggalan tata nilai masyarakat terhadap kemajuan teknologi digital (seperti penyebaran hoax SARA) disebut...",
+        options: [
+          { key: "A", text: "Cultural Lag" },
+          { key: "B", text: "Social Disintegration" },
+          { key: "C", text: "Cultural Shock" },
+          { key: "D", text: "Structural Functionalism" },
+          { key: "E", text: "Multicultural Hegemony" }
+        ],
+        correct: "A",
+        explanation: "Cultural Lag: kemajuan teknologi yang tidak dibarengi kesiapan mental dan literasi nilai."
+      },
+      {
+        id: 17,
+        category: "PPKN",
+        stimulus: "",
+        question: "Dampak negatif yang paling membahayakan negara akibat keberagaman yang tidak terkelola adalah...",
+        options: [
+          { key: "A", text: "Menguatnya ikatan social engineering" },
+          { key: "B", text: "Tingginya angka pernikahan campur" },
+          { key: "C", text: "Munculnya disintegrasi bangsa akibat konflik SARA" },
+          { key: "D", text: "Berkurangnya jumlah penduduk produktif" },
+          { key: "E", text: "Tumbuhnya semangat asimilasi politik" }
+        ],
+        correct: "C",
+        explanation: "Disintegrasi (perpecahan) adalah risiko negatif utama dari keberagaman yang tidak terkelola."
+      },
+      {
+        id: 18,
+        category: "PPKN",
+        stimulus: "",
+        question: "Bentuk konkret upaya rekayasa sosial (Social Engineering) untuk menanggulangi dampak negatif kebhinekaan adalah...",
+        options: [
+          { key: "A", text: "Menghapus identitas keagamaan di ruang publik" },
+          { key: "B", text: "Melarang teknologi komunikasi di daerah terpencil" },
+          { key: "C", text: "Mewajibkan pemakaian satu jenis pakaian adat secara nasional" },
+          { key: "D", text: "Merancang kebijakan ekonomi inklusif dan pendidikan karakter toleransi" },
+          { key: "E", text: "Membubarkan institusi kedaerahan tanpa proses peradilan" }
+        ],
+        correct: "D",
+        explanation: "Social Engineering konkret mencakup kebijakan inklusif, hukum adil, dan pendidikan karakter."
+      },
+      {
+        id: 19,
+        category: "PPKN",
+        stimulus: "",
+        question: "Mengapa Cultural Lag di era digital sangat berbahaya bagi integrasi bangsa Indonesia?",
+        options: [
+          { key: "A", text: "Teknologi digital merusak fisik generasi muda" },
+          { key: "B", text: "Ketertinggalan perangkat keras membuat daerah merasa dianaktirikan" },
+          { key: "C", text: "Internet otomatis menghilangkan identitas lokal bangsa" },
+          { key: "D", text: "Regulasi pemerintah memicu warga memberontak secara digital" },
+          { key: "E", text: "Teknologi maju tanpa literasi etika membuat sentimen perbedaan mudah dieksploitasi" }
+        ],
+        correct: "E",
+        explanation: "Kurangnya literasi etika di era digital membuat sentimen perbedaan mudah dieksploitasi untuk memicu konflik."
+      },
+      {
+        id: 20,
+        category: "PPKN",
+        stimulus: "",
+        question: "Perpaduan K-Pop dengan batik dan lirik bahasa daerah oleh generasi muda membuktikan bahwa...",
+        options: [
+          { key: "A", text: "Kebudayaan Nusantara mengalami invasi pasif" },
+          { key: "B", text: "Masyarakat mampu melakukan akulturasi budaya yang dinamis" },
+          { key: "C", text: "Cultural lag tidak berlaku pada generasi Z" },
+          { key: "D", text: "Kebudayaan lokal rentan luntur tanpa sisa" },
+          { key: "E", text: "Terjadi segregasi sosial antara kelas elit dan kelas bawah" }
+        ],
+        correct: "B",
+        explanation: "Akulturasi dinamis: pengaruh asing diterima tanpa melenyapkan kebanggaan pada identitas asal."
+      },
+      {
+        id: 21,
+        category: "PPKN",
+        stimulus: "",
+        question: "Secara etimologi Jawa Kuno, kata \"Bhinneka\", \"Tunggal\", dan \"Ika\" berarti...",
+        options: [
+          { key: "A", text: "Bersatu, Saling, Mengerti" },
+          { key: "B", text: "Berbeda, Mutlak, Satu" },
+          { key: "C", text: "Beragam, Satu, Itu" },
+          { key: "D", text: "Bersama, Padu, Selamanya" },
+          { key: "E", text: "Terpecah, Kokoh, Jua" }
+        ],
+        correct: "C",
+        explanation: "Bhinneka (Beragam), Tunggal (Satu), Ika (Itu)."
+      },
+      {
+        id: 22,
+        category: "PPKN",
+        stimulus: "",
+        question: "Esensi filosofis dari frasa \"Tan hana dharma mangrwa\" adalah...",
+        options: [
+          { key: "A", text: "Tidak ada kebenaran yang mendua meskipun jalannya berbeda" },
+          { key: "B", text: "Penentang kerajaan akan dihukum tanpa memihak" },
+          { key: "C", text: "Agama Buddha dan Siwa dilarang mencampuri ritual masing-masing" },
+          { key: "D", text: "Keragaman budaya harus tunduk pada hukum besi keraton" },
+          { key: "E", text: "Manusia diutus untuk pengabdian kepada raja semata" }
+        ],
+        correct: "A",
+        explanation: "Esensi filosofis: kebenaran/tujuan akhir adalah satu meskipun jalannya berbeda-beda."
+      },
+      {
+        id: 23,
+        category: "PPKN",
+        stimulus: "",
+        question: "Dua makna fundamental Bhinneka Tunggal Ika secara filosofis adalah...",
+        options: [
+          { key: "A", text: "Dominasi etnis mayoritas dan asimilasi pendatang" },
+          { key: "B", text: "Kesamaan ekonomi dan kapitalisme global" },
+          { key: "C", text: "Supremasi militer dan diplomasi internasional" },
+          { key: "D", text: "Perbedaan sebagai realitas dan persatuan sebagai cita-cita" },
+          { key: "E", text: "Toleransi tanpa batas dan sanksi adat bagi minoritas" }
+        ],
+        correct: "D",
+        explanation: "Dua makna: Perbedaan sebagai realitas objektif dan Persatuan sebagai cita-cita bersama."
+      },
+      {
+        id: 24,
+        category: "PPKN",
+        stimulus: "",
+        question: "Dasar hukum formal semboyan Bhinneka Tunggal Ika tercantum dalam...",
+        options: [
+          { key: "A", text: "Pembukaan UUD 1945 alinea ketiga" },
+          { key: "B", text: "Pasal 36A UUD NRI Tahun 1945" },
+          { key: "C", text: "Ketetapan MPR pasca-reformasi" },
+          { key: "D", text: "Sila ketiga dalam Piagam Jakarta" },
+          { key: "E", text: "UU No. 12 Tahun 2006" }
+        ],
+        correct: "B",
+        explanation: "Pasal 36A UUD 1945 secara eksplisit mengatur lambang negara dan semboyan."
+      },
+      {
+        id: 25,
+        category: "PPKN",
+        stimulus: "",
+        question: "Pengejawantahan identitas integratif dalam Pasal 36 UUD 1945 adalah ditetapkannya...",
+        options: [
+          { key: "A", text: "Bendera" },
+          { key: "B", text: "Sistem Demokrasi Pancasila" },
+          { key: "C", text: "Otonomi Daerah" },
+          { key: "D", text: "Ketuhanan Yang Maha Esa" },
+          { key: "E", text: "Bahasa Indonesia sebagai Bahasa Negara" }
+        ],
+        correct: "E",
+        explanation: "Bahasa Indonesia ditetapkan sebagai bahasa negara untuk menjembatani ribuan perbedaan bahasa lokal."
+      },
+      {
+        id: 26,
+        category: "PPKN",
+        stimulus: "",
+        question: "Tokoh yang pertama kali mengutip ungkapan Bhinneka Tunggal Ika secara spontan dalam sidang BPUPKI adalah...",
+        options: [
+          { key: "A", text: "Mohammad Yamin" },
+          { key: "B", text: "K.H. Wahid Hasyim" },
+          { key: "C", text: "Ir. Soekarno" },
+          { key: "D", text: "Raden Soepomo" },
+          { key: "E", text: "Ki Hajar Dewantara" }
+        ],
+        correct: "A",
+        explanation: "Mohammad Yamin adalah tokoh yang pertama kali menyebut frasa ini dalam sidang BPUPKI."
+      },
+      {
+        id: 27,
+        category: "PPKN",
+        stimulus: "",
+        question: "Tokoh asal Buleleng, Bali, yang menyambung kutipan Yamin dengan kalimat \"Tan hana dharma mangrwa\" adalah...",
+        options: [
+          { key: "A", text: "I Ketut Pudja" },
+          { key: "B", text: "Anak Agung Gde Agung" },
+          { key: "C", text: "I Gusti Bagus Sugriwa" },
+          { key: "D", text: "Tjokorda Gde Raka Soekawati" },
+          { key: "E", text: "I Gusti Ngurah Rai" }
+        ],
+        correct: "C",
+        explanation: "I Gusti Bagus Sugriwa spontan menyambung kutipan Yamin, membuktikan filosofi tersebut masih hidup."
+      },
+      {
+        id: 28,
+        category: "PPKN",
+        stimulus: "",
+        question: "Mengapa semboyan negara disebut sebagai \"modal sosial\" bangsa?",
+        options: [
+          { key: "A", text: "Semboyan tersebut menjadi komoditas ekonomi pariwisata" },
+          { key: "B", text: "Nilai di dalamnya menjadi sumber daya pengikat kerja sama tanpa paksaan militer" },
+          { key: "C", text: "Negara berhak memberangus perbedaan pendapat demi persatuan" },
+          { key: "D", text: "APBN bergantung pada pajak yang ditarik dari berbagai etnis" },
+          { key: "E", text: "Masyarakat wajib menyerahkan aset daerah untuk dikelola pusat" }
+        ],
+        correct: "B",
+        explanation: "Modal sosial: nilai toleransi yang memampukan masyarakat bekerja sama secara sukarela."
+      },
+      {
+        id: 29,
+        category: "PPKN",
+        stimulus: "",
+        question: "Sikap negara yang paling tepat terhadap daerah yang ingin memisahkan diri karena alasan budaya adalah...",
+        options: [
+          { key: "A", text: "Mengabulkan tuntutan demi demokrasi" },
+          { key: "B", text: "Menekan budaya tersebut dengan asimilasi paksa" },
+          { key: "C", text: "Membiarkan daerah otonom tanpa intervensi hukum pusat" },
+          { key: "D", text: "Mengabaikan keluhan dan hanya memberikan dana kompensasi" },
+          { key: "E", text: "Mengakui identitas kultural secara adil dalam naungan NKRI" }
+        ],
+        correct: "E",
+        explanation: "Mengakui identitas kultural daerah secara adil sembari menegaskan persatuan dalam NKRI."
+      },
+      {
+        id: 30,
+        category: "PPKN",
+        stimulus: "",
+        question: "Mengapa kutipan kitab abad ke-14 tetap relevan di Indonesia yang modern saat ini?",
+        options: [
+          { key: "A", text: "Karena UUD 1945 disusun secara terburu-buru" },
+          { key: "B", text: "Upaya elit politik menghidupkan kembali feodalisme Majapahit" },
+          { key: "C", text: "Konstitusi mempromosikan sinkretisme agama secara birokratis" },
+          { key: "D", text: "Nilainya telah melampaui teologi asal menjadi prinsip sosiologis universal" },
+          { key: "E", text: "Ketakutan bahwa tanpa identitas kuno, investor asing akan pergi" }
+        ],
+        correct: "D",
+        explanation: "Relevansi: nilainya melampaui teologi asal menjadi doktrin sosiologis universal tentang perbedaan."
+      },
+      {
+        id: 31,
+        category: "PPKN",
+        stimulus: "",
+        question: "Secara etimologi dalam KBBI, \"Gotong\" dan \"Royong\" bermakna...",
+        options: [
+          { key: "A", text: "Memberi beban dan secara adil" },
+          { key: "B", text: "Melaksanakan dan tanpa pamrih" },
+          { key: "C", text: "Mengangkat dan bersama-sama" },
+          { key: "D", text: "Berjalan beriringan dan menuju satu titik" },
+          { key: "E", text: "Saling berbagi harta dan dalam kelompok" }
+        ],
+        correct: "C",
+        explanation: "Gotong (Memikul/Mengangkat), Royong (Bersama-sama)."
+      },
+      {
+        id: 32,
+        category: "PPKN",
+        stimulus: "",
+        question: "Karakter kodrati manusia yang selalu membutuhkan bantuan orang lain menunjukkan peran manusia sebagai...",
+        options: [
+          { key: "A", text: "Makhluk Biologis Semu" },
+          { key: "B", text: "Makhluk Sosial" },
+          { key: "C", text: "Makhluk Individu" },
+          { key: "D", text: "Homo Economicus" },
+          { key: "E", text: "Zoon Ekonomicus" }
+        ],
+        correct: "B",
+        explanation: "Zoon Politicon: kodrat manusia sebagai makhluk yang selalu hidup bermasyarakat."
+      },
+      {
+        id: 33,
+        category: "PPKN",
+        stimulus: "",
+        question: "Perbedaan mendasar antara \"Tolong Menolong\" dan \"Kerja Bakti\" menurut Koentjaraningrat adalah...",
+        options: [
+          { key: "A", text: "Tolong menolong bersifat individual/reaktif; kerja bakti bersifat proaktif untuk umum" },
+          { key: "B", text: "Tolong menolong tentang uang; kerja bakti tentang pemakaman" },
+          { key: "C", text: "Tolong menolong dipaksa RT; kerja bakti muncul dari ibu-ibu" },
+          { key: "D", text: "Tolong menolong warisan kolonial; kerja bakti penemuan aparatur desa" },
+          { key: "E", text: "Tolong menolong adalah ritual agama; kerja bakti tidak religius" }
+        ],
+        correct: "A",
+        explanation: "Tolong menolong bersifat personal/reaktif; Kerja bakti bersifat komunal/proaktif untuk publik."
+      },
+      {
+        id: 34,
+        category: "PPKN",
+        stimulus: "",
+        question: "Tindakan warga yang spontan mendirikan tenda dan memberi sembako saat tetangga kebakaran termasuk jenis...",
+        options: [
+          { key: "A", text: "Tanggung jawab korporasi" },
+          { key: "B", text: "Asimilasi budaya material" },
+          { key: "C", text: "Kerja bakti struktural" },
+          { key: "D", text: "Tolong menolong berasaskan empati" },
+          { key: "E", text: "Rekayasa fungsional" }
+        ],
+        correct: "D",
+        explanation: "Menolong warga musibah adalah wujud Tolong Menolong berasaskan empati dan kekeluargaan."
+      },
+      {
+        id: 35,
+        category: "PPKN",
+        stimulus: "",
+        question: "Karang taruna yang mengeruk selokan dan mengecat gapura menjelang 17 Agustus tanpa upah merupakan praktik...",
+        options: [
+          { key: "A", text: "Pemberdayaan desa inisiasi pusat" },
+          { key: "B", text: "Kompetisi prestise antardesa" },
+          { key: "C", text: "Tolong menolong berbasis kekerabatan" },
+          { key: "D", text: "Cultural Shock masa modern" },
+          { key: "E", text: "Kerja bakti proaktif untuk utilitas umum" }
+        ],
+        correct: "E",
+        explanation: "Kerja Bakti proaktif bertujuan menjaga utilitas umum dan hajat hidup orang banyak."
+      },
+      {
+        id: 36,
+        category: "PPKN",
+        stimulus: "",
+        question: "Jika Pancasila diperas menjadi Ekasila, maka intisarinya menurut Ir. Soekarno adalah...",
+        options: [
+          { key: "A", text: "Semangat Gotong Royong" },
+          { key: "B", text: "Doktrin Kemanusiaan universal" },
+          { key: "C", text: "Prinsip Sosio-Demokrasi" },
+          { key: "D", text: "Ketuhanan yang berkebudayaan" },
+          { key: "E", text: "Nasionalisme kebangsaan" }
+        ],
+        correct: "A",
+        explanation: "Pancasila jika diperas menjadi Ekasila intisarinya adalah semangat Gotong Royong."
+      },
+      {
+        id: 37,
+        category: "PPKN",
+        stimulus: "",
+        question: "Kearifan lokal masyarakat Jawa dalam pengerahan tenaga massal sukarela untuk sarana umum disebut...",
+        options: [
+          { key: "A", text: "Mapalus" },
+          { key: "B", text: "Gugur Gunung" },
+          { key: "C", text: "Pela Gandong" },
+          { key: "D", text: "Ngayah" },
+          { key: "E", text: "Sabilulungan" }
+        ],
+        correct: "B",
+        explanation: "Gugur Gunung adalah kearifan lokal Jawa dalam pengerahan tenaga massal sukarela."
+      },
+      {
+        id: 38,
+        category: "PPKN",
+        stimulus: "",
+        question: "Tradisi sukarela membantu hajatan tetangga (memasak/menyiapkan tenda) di Yogyakarta disebut...",
+        options: [
+          { key: "A", text: "Subak" },
+          { key: "B", text: "Sintren" },
+          { key: "C", text: "Rewang" },
+          { key: "D", text: "Rambu Solo'" },
+          { key: "E", text: "Mappalette Bola" }
+        ],
+        correct: "C",
+        explanation: "Rewang adalah tradisi membantu hajatan (pernikahan/duka) tetangga tanpa imbalan materi."
+      },
+      {
+        id: 39,
+        category: "PPKN",
+        stimulus: "",
+        question: "Dalam tataran sosiologis, gotong royong yang sehat di Indonesia bermakna...",
+        options: [
+          { key: "A", text: "Memaksakan penyeragaman aset kepemilikan" },
+          { key: "B", text: "Mekanisme penindasan mayoritas terhadap individu" },
+          { key: "C", text: "Pengumpulan uang sumbangan untuk birokrasi" },
+          { key: "D", text: "Peleburan total hak asasi ke kekuasaan publik" },
+          { key: "E", text: "Kolaborasi harmonis dalam memenuhi kebutuhan sosial tanpa menghilangkan kemerdekaan individu" }
+        ],
+        correct: "E",
+        explanation: "Gotong royong menyeimbangkan kekuatan pribadi/individu dengan kebutuhan sosial masyarakat."
+      },
+      {
+        id: 40,
+        category: "PPKN",
+        stimulus: "",
+        question: "Perwujudan gotong royong dalam struktur ekonomi nasional sesuai Pasal 33 ayat 1 UUD 1945 adalah...",
+        options: [
+          { key: "A", text: "Pemberian hak monopoli komoditas pada swasta" },
+          { key: "B", text: "Pengelolaan aset secara militeristik oleh negara" },
+          { key: "C", text: "Penghapusan sektor informal pedesaan" },
+          { key: "D", text: "Penguatan lembaga Koperasi yang mengedepankan partisipasi anggota" },
+          { key: "E", text: "Menyerahkan regulasi asuransi kepada spekulasi pasar saham" }
+        ],
+        correct: "D",
+        explanation: "Koperasi mencerminkan sistem ekonomi gotong royong yang mengutamakan partisipasi anggota."
+      }
+    ];
+
+    // --- STATE VARIABLES ---
+    let currentQIndex = 0;
+    let score = 0;
+    let selectedAnswer = null;
+    let isAnswered = false;
+
+    // --- DOM ELEMENTS ---
+    const screens = {
+      start: document.getElementById('screen-start'),
+      quiz: document.getElementById('screen-quiz'),
+      result: document.getElementById('screen-result')
+    };
+
+    // Quiz Elements
+    const elCategory = document.getElementById('quiz-category');
+    const elProgressText = document.getElementById('quiz-progress-text');
+    const elProgressBar = document.getElementById('quiz-progress-bar');
+    const elStimulusContainer = document.getElementById('stimulus-container');
+    const elStimulus = document.getElementById('quiz-stimulus');
+    const elQuestion = document.getElementById('quiz-question');
+    const elOptions = document.getElementById('quiz-options');
+    const elFeedbackContainer = document.getElementById('quiz-feedback-container');
+    const elFeedbackBox = document.getElementById('quiz-feedback-box');
+    const elFeedbackIcon = document.getElementById('quiz-feedback-icon');
+    const elFeedbackTitle = document.getElementById('quiz-feedback-title');
+    const elFeedbackText = document.getElementById('quiz-feedback-text');
+    const elNextBtn = document.getElementById('quiz-next-btn');
+
+    // Result Elements
+    const elResultScore = document.getElementById('result-score');
+    const elResultCorrect = document.getElementById('result-correct');
+    const elResultTotal = document.getElementById('result-total');
+    const elResultMessage = document.getElementById('result-message');
+    const elResultCircle = document.getElementById('result-circle');
+
+    // --- FUNCTIONS ---
+    function showScreen(screenName) {
+      Object.values(screens).forEach(s => s.classList.add('hidden'));
+      screens[screenName].classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function startQuiz() {
+      currentQIndex = 0;
+      score = 0;
+      selectedAnswer = null;
+      isAnswered = false;
+      showScreen('quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = questionsData[currentQIndex];
+      const progressPercent = ((currentQIndex + 1) / questionsData.length) * 100;
+
+      elCategory.textContent = q.category;
+      elProgressText.textContent = `Soal ${currentQIndex + 1} / ${questionsData.length}`;
+      elProgressBar.style.width = `${progressPercent}%`;
+      
+      // Handle Stimulus display
+      if (q.stimulus && q.stimulus.trim() !== "") {
+        elStimulusContainer.classList.remove('hidden');
+        elStimulus.textContent = q.stimulus;
+      } else {
+        elStimulusContainer.classList.add('hidden');
+      }
+
+      elQuestion.textContent = q.question;
+      
+      elNextBtn.innerHTML = currentQIndex === questionsData.length - 1  
+        ? `Selesaikan Latihan <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`
+        : `Soal Berikutnya <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>`;
+
+      renderOptions();
+      elFeedbackContainer.classList.add('hidden');
+    }
+
+    function renderOptions() {
+      const q = questionsData[currentQIndex];
+      elOptions.innerHTML = '';
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        
+        let btnClass = "w-full text-left p-4 rounded-xl border border-slate-600 bg-slate-700/40 hover:bg-slate-600/60 transition duration-200 flex items-start gap-4";
+        let letterClass = "flex-shrink-0 w-8 h-8 rounded-full bg-slate-600 text-white flex items-center justify-center font-bold text-sm";
+        
+        if (!isAnswered) {
+          btn.style.cursor = "pointer";
+          btn.onclick = () => selectOption(opt.key);
+        } else {
+          btn.disabled = true;
+          btnClass = "w-full text-left p-4 rounded-xl border flex items-start gap-4 opacity-60";
+          
+          if (opt.key === q.correct) {
+            btnClass = "w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-900/40 flex items-start gap-4";
+            letterClass = "flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm";
+          } else if (opt.key === selectedAnswer && selectedAnswer !== q.correct) {
+            btnClass = "w-full text-left p-4 rounded-xl border border-rose-500 bg-rose-900/40 flex items-start gap-4";
+            letterClass = "flex-shrink-0 w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-sm";
+          }
+        }
+
+        btn.className = btnClass;
+        btn.innerHTML = `
+          <span class="${letterClass}">${opt.key}</span>
+          <span class="pt-1 text-slate-200">${opt.text}</span>
+        `;
+        elOptions.appendChild(btn);
+      });
+    }
+
+    function selectOption(key) {
+      if (isAnswered) return;
+      isAnswered = true;
+      selectedAnswer = key;
+
+      const q = questionsData[currentQIndex];
+      const isCorrect = (key === q.correct);
+
+      if (isCorrect) score++;
+
+      renderOptions(); // Re-render to show colors
+      showFeedback(isCorrect, q.explanation);
+    }
+
+    function showFeedback(isCorrect, explanation) {
+      elFeedbackContainer.classList.remove('hidden');
+      
+      if (isCorrect) {
+        elFeedbackBox.className = "p-6 rounded-2xl border bg-emerald-900/30 border-emerald-500/50 text-emerald-100 mb-6";
+        elFeedbackIcon.innerHTML = `<svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        elFeedbackTitle.textContent = "Jawaban Kamu Tepat!";
+      } else {
+        elFeedbackBox.className = "p-6 rounded-2xl border bg-rose-900/30 border-rose-500/50 text-rose-100 mb-6";
+        elFeedbackIcon.innerHTML = `<svg class="w-7 h-7 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        elFeedbackTitle.textContent = "Jawaban Kamu Kurang Tepat";
+      }
+
+      elFeedbackText.innerHTML = `<strong class="font-semibold">Pembahasan:</strong> ${explanation}`;
+    }
+
+    function handleNextQuestion() {
+      if (currentQIndex < questionsData.length - 1) {
+        currentQIndex++;
+        selectedAnswer = null;
+        isAnswered = false;
+        renderQuestion();
+      } else {
+        showResultScreen();
+      }
+    }
+
+    function showResultScreen() {
+      const total = questionsData.length;
+      const finalScore = Math.round((score / total) * 100);
+      
+      elResultScore.textContent = finalScore;
+      elResultCorrect.textContent = score;
+      elResultTotal.textContent = total;
+      
+      elResultCircle.setAttribute('stroke-dasharray', `${finalScore}, 100`);
+
+      if (finalScore >= 80) {
+        elResultMessage.textContent = "Luar biasa! Pemahaman PPKN-mu sangat mantap.";
+      } else if (finalScore >= 60) {
+        elResultMessage.textContent = "Kerja bagus! Sedikit lagi menguasai materi ini.";
+      } else {
+        elResultMessage.textContent = "Terus semangat belajar! Yuk pelajari lagi materi PPKN dari awal.";
+      }
+
+      showScreen('result');
+    }
+
+    function goHome() {
+      showScreen('start');
+    }
+  </script>
+</body>
+</html>
